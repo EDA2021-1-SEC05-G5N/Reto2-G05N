@@ -65,12 +65,15 @@ while True:
     if int(inputs[0]) == 1:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
-        loadData(catalog)
+        answer = controller.loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
 
         print('\nId y categorías: ')
         for c in lt.iterator(catalog['category']):
             print(c['id'],c["name"])
+        
+        print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
+               "Memoria [kB]: ", f"{answer[1]:.3f}")
 
     elif int(inputs[0]) == 2:
         categoria = input('Ingrese la categoría: ')
