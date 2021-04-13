@@ -71,28 +71,28 @@ def newCatalog():
     Este indice crea un map cuya llave es el identificador del libro
     """
     catalog['videos'] = mp.newMap(10000,
-                                   maptype='CHAINING',
-                                   loadfactor=4.0,
+                                   maptype='PROBING',
+                                   loadfactor=0.80,
                                    comparefunction=comparevideo_id1)
 
     """
     Este indice crea un map cuya llave es el autor del libro
     """
     catalog['views'] = mp.newMap(800,
-                                   maptype='CHAINING',
-                                   loadfactor=4.0,
+                                   maptype='PROBING',
+                                   loadfactor=0.80,
                                    comparefunction=cmpVideosByViews)
 
     catalog['likes'] = mp.newMap(800,
-                                maptype='CHAINING',
-                                loadfactor=4.0,
+                                maptype='PROBING',
+                                loadfactor=0.80,
                                 comparefunction=cmpVideosByLikes)
     """
     Este indice crea un map cuya llave es la categoria
     """
     catalog['category'] = mp.newMap(34500,
                                 maptype='PROBING',
-                                loadfactor=0.5,
+                                loadfactor=0.80,
                                 comparefunction=comparevideo_id1)
 
     return catalog
@@ -131,7 +131,7 @@ def addCategory(catalog, category):
 
 
 
-# FUNCIONES RETO 1
+# FUNCIONES RETO 2
 
 
 
@@ -403,11 +403,7 @@ def sortVideosByLikes (lista_filtros):
 
 
 
-
-
-
-
-def get_id_categoria(categoria, catalog):
+def get_id_categoria(catalog, categoria):
     """
     Busca una categoria en especifica del catalog, y retorna su respectivo id
     """
@@ -425,9 +421,27 @@ def getVideosbytag(catalog, categoria):
     """
     Retornar la lista de videos asociados a una categoria
     """
-    ids = get_id_categoria(categoria)
-    tag = mp.get(catalog['category_id'], ids)
-    books = None
+    ids = get_id_categoria(catalog, categoria)
+    tag = mp.get(catalog["videos"], ids)
+    videos = None
     if tag:
-        books = me.getValue(tag)['books']
-    return books
+        videos = me.getValue(tag)['videos']
+    return videos
+
+
+def filtrar_pais_categoria (id_categoria, catalog):
+    """
+    Crea una lista nueva para ordenar los datos segun su id.
+    Y recorre la lista dada, para guardar en la nueva lista 
+    solo los videos que correspondan con el id y el pais
+    """
+    nueva_lista = catalog['videos'] = mp.newMap(10000,
+                                   maptype='PROBING',
+                                   loadfactor=0.80,
+                                   comparefunction=comparevideo_id1)
+
+    for x in lt.iterator(catalog['videos']):
+        if int(x['category_id']) == id_categoria:
+            mp.addLast(nueva_lista, x)
+
+    return nueva_lista

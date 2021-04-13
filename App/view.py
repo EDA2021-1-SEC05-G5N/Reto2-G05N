@@ -50,9 +50,12 @@ operación solicitada
 """
 
 def printMenu():
-    print("Bienvenido")
-    print("1- Cargar información en el catálogo")
-    print("2- ")
+    print("Bienvenido!")
+    print("0- Cargar información en el catálogo")
+    print("1- Mejores videos por categoria y pais       - Req 1")
+    print("2- Mejor video por pais                      - Req 2")
+    print("3- Mejor video por categoria                 - Req 3")
+    print("4- Videos con mas likes por categoria y pais - Req 4")
 
 catalog = None
 
@@ -62,7 +65,7 @@ Menu principal
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
+    if int(inputs[0]) == 0:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
         answer = controller.loadData(catalog)
@@ -75,12 +78,12 @@ while True:
         print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
                "Memoria [kB]: ", f"{answer[1]:.3f}")
 
-    elif int(inputs[0]) == 2:
+    elif int(inputs[0]) == 1:
         categoria = input('Ingrese la categoría: ')
+        pais = input('Ingrese el pais: ')
         cantidad = int(input('Ingrese el número de videos: '))
 
-        #respuesta = controller.requerimiento_1(categoria, cantidad, catalog)
-        resultado = controller.cargar(catalog, categoria)
+        resultado = controller.requerimiento_1(catalog, categoria, cantidad)
         print(resultado)
 
     else:
@@ -93,7 +96,7 @@ sys.exit(0)
 
 
 
-# FUNCIONES RETO 1
+# FUNCIONES RETO 2
 
 
 

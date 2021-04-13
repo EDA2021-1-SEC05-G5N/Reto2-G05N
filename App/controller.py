@@ -106,7 +106,7 @@ def loadVideos(catalog):
     video, likes, dislikes, fecha de publicación, likes y tags.
     """
 
-    videosfile = cf.data_dir + 'videos-small.csv'
+    videosfile = cf.data_dir + 'videos-large.csv'
     
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     for video in input_file:
@@ -154,7 +154,7 @@ def loadCategories (catalog):
 
 
 
-# FUNCIONES RETO 1
+# FUNCIONES RETO 2
 
 
 
@@ -227,12 +227,6 @@ def sortBooksByYear(catalog, year, fraction, rank):
 
 # Funciones de consulta sobre el catálogo
 
-#1
-def get_id_categoria (categoria, catalog):
-    """
-    Retorna el id de la categoría solicitada.
-    """
-    return model.get_id_categoria(categoria, catalog)
 
 #1
 def filtrar_pais_categoria (id_categoria, catalog):
@@ -288,24 +282,26 @@ def acortar_lista (sorted_list, cantidad):
 
 
 
-#Funciones con el orden de las ejecuciones de cada requerimiento:
+
+
+
+#Funciones:
 
 #1
-def requerimiento_1(categoria, cantidad, catalog):
+def requerimiento_1(catalog, categoria, cantidad):
 
-    id_categoria = get_id_categoria(categoria, catalog)
-    lista_filtros = filtrar_pais_categoria(id_categoria, catalog)
-    sorted_list = sortVideosByLikes(lista_filtros)
+    id_categoria = model.get_id_categoria(catalog, categoria)
+    #buscartag = model.getVideosbytag(catalog, id_categoria)
+    lista_filtros = model.filtrar_pais_categoria(id_categoria, catalog)
+    #sorted_list = sortVideosByLikes(lista_filtros)
 
-    return sorted_list
-
-
-
+    return lista_filtros
 
 
 
-def cargar(catalog, categoria):
-    return model.get_id_categoria(catalog, categoria)
+
+
+
 
 
 
