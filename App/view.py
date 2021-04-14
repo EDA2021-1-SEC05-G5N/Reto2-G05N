@@ -50,7 +50,7 @@ operación solicitada
 """
 
 def printMenu():
-    print("Bienvenido!")
+    print("\nBienvenido!\n")
     print("0- Cargar información en el catálogo")
     print("1- Mejores videos por categoria y pais       - Req 1")
     print("2- Mejor video por pais                      - Req 2")
@@ -68,22 +68,32 @@ while True:
     if int(inputs[0]) == 0:
         print("Cargando información de los archivos ....")
         catalog = initCatalog()
-        answer = controller.loadData(catalog)
+        loadData(catalog)
+
         print('Videos cargados: ' + str(lt.size(catalog['videos'])))
 
         print('\nId y categorías: ')
         for c in lt.iterator(catalog['category']):
             print(c['id'],c["name"])
         
+        # Calcular tiempo
+        answer = controller.loadData(catalog)
         print("Tiempo [ms]: ", f"{answer[0]:.3f}", "  ||  ",
                "Memoria [kB]: ", f"{answer[1]:.3f}")
+        
 
     elif int(inputs[0]) == 1:
         categoria = input('Ingrese la categoría: ')
         pais = input('Ingrese el pais: ')
         cantidad = int(input('Ingrese el número de videos: '))
 
-        resultado = controller.requerimiento_1(catalog, categoria, cantidad)
+        resultado = controller.requerimiento_1(catalog, categoria, cantidad, pais)
+        print(resultado)
+    
+    elif int(inputs[0]) == 2:
+        pais = input('Ingrese el pais: ')
+
+        resultado = controller.requerimiento_2(catalog, pais)
         print(resultado)
 
     else:

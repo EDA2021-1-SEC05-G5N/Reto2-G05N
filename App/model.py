@@ -22,7 +22,7 @@
  * Contribuciones:
  *
  * Dario Correal - Version inicial
- """
+"""
 
 
 import config as cf
@@ -30,6 +30,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import mergesort
 assert cf
 
 """
@@ -54,11 +55,9 @@ def newCatalog():
     """
     catalog = {'videos': None,
                'views': None,
+               'country': None,
                'category': None
                 }
-
-    catalog['videos'] = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
-    catalog['category'] = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
 
     """
     A continuacion se crean indices por diferentes criterios
@@ -68,32 +67,36 @@ def newCatalog():
     """
 
     """
-    Este indice crea un map cuya llave es el identificador del libro
+    Este indice crea una lista cuya llave es el id
     """
-    catalog['videos'] = mp.newMap(10000,
-                                   maptype='PROBING',
-                                   loadfactor=0.80,
-                                   comparefunction=comparevideo_id1)
+    catalog['videos'] = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
 
     """
     Este indice crea un map cuya llave es el autor del libro
     """
-    catalog['views'] = mp.newMap(800,
+    catalog['video_id'] = mp.newMap(800,
                                    maptype='PROBING',
                                    loadfactor=0.80,
-                                   comparefunction=cmpVideosByViews)
+                                   comparefunction=comparevideo_id1)
+    
+    catalog['views'] = mp.newMap(800,
+                                   maptype='CHAINING',
+                                   loadfactor=4.0,
+                                   comparefunction=comparevideo_id1)
 
-    catalog['likes'] = mp.newMap(800,
-                                maptype='PROBING',
-                                loadfactor=0.80,
-                                comparefunction=cmpVideosByLikes)
-    """
-    Este indice crea un map cuya llave es la categoria
-    """
-    catalog['category'] = mp.newMap(34500,
-                                maptype='PROBING',
-                                loadfactor=0.80,
+    catalog['likes'] = mp.newMap(50,
+                                maptype='CHAINING',
+                                loadfactor=2.0,
                                 comparefunction=comparevideo_id1)
+
+    catalog['country'] = mp.newMap(50,
+                            maptype='CHAINING',
+                            loadfactor=2.0,
+                            comparefunction=comparepais)
+    """
+    Este indice crea un lista cuya llave es la categoria
+    """
+    catalog['category'] = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
 
     return catalog
 
@@ -107,6 +110,9 @@ def addVideo(catalog, video):
     Añade un video al final, de la lista recibida
     """
     lt.addLast(catalog['videos'], video)
+    mp.put(catalog['video_id'], video['video_id'], video)
+
+
 
 def addCategory(catalog, category):
     """
@@ -115,17 +121,21 @@ def addCategory(catalog, category):
     lt.addLast(catalog['category'], category)
 
 
+def addCountry(catalog, video):
+    """
+    Añade un pais al final, de la lista recibida
+    """
+    pais = video['country']
+    contiene = mp.contains(catalog['country'], pais)
 
-
-# Funciones de consulta
-
-# Funciones utilizadas para comparar elementos dentro de una lista
-
-# Funciones de ordenamiento
-
-
-
-
+    if not contiene:
+        videos_pais = lt.newList(datastructure='ARRAY_LIST')
+        lt.addLast(videos_pais, video)
+        mp.put(catalog['country'], pais, videos_pais)
+    else:
+        obtener = mp.get(catalog['country'], pais)
+        valor = me.getValue(obtener)
+        lt.addLast(valor, video)
 
 
 
@@ -140,35 +150,10 @@ def addCategory(catalog, category):
 
 #1 y 3
 
-#1
-def filtrar_pais_categoria (id_categoria, catalog):
-    """
-    Crea una lista nueva para ordenar los datos segun su id.
-    Y recorre la lista dada, para guardar en la nueva lista 
-    solo los videos que correspondan con el id y el pais
-    """
-    nueva_lista = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
 
-    for x in lt.iterator(catalog['videos']):
-        if int(x['category_id']) == id_categoria:
-            lt.addLast(nueva_lista, x)
 
-    return nueva_lista
 
-#2
-def filtrar_pais (pais, catalog):
-    """
-    Crea una lista nueva para ordenar los datos segun su id.
-    Y recorre la lista dada, para guardar en la nueva lista 
-    solo los videos que correspondan con el respectivo pais
-    """
-    lista_pais = lt.newList("ARRAY_LIST", cmpfunction = comparevideo_id1)
 
-    for x in lt.iterator(catalog['videos']):
-        if str(x['country'].strip()) == pais:
-            lt.addLast(lista_pais, x)
-        
-    return lista_pais
 
 #2
 def getTendencia2(sorted_list):
@@ -308,7 +293,7 @@ def comparevideo_id1(video1, video2):
     video1: informacion del primer video que incluye su valor 'video_id'
     video2: informacion del segundo video que incluye su valor 'video_id'
     """
-    return video1["video_id"] < video2["video_id"]
+    return video1 < video2["key"]
 
 def cmpVideosByID_date (video1, video2):
     """
@@ -318,8 +303,8 @@ def cmpVideosByID_date (video1, video2):
     video2: informacion del segundo video que incluye su valor 'video_id'
     Y si los id son iguales los compara por su trending date
     """
-    if video1['video_id'] != video2['video_id']:
-        return video1["video_id"] < video2["video_id"]   
+    if video1 != video2['key']:
+        return video1 < video2["key"]   
     else:
         return video1["trending_date"] < video2["trending_date"]
 
@@ -330,7 +315,7 @@ def cmpVideosByViews(video1, video2):
     video1: informacion del primer video que incluye su valor 'views'
     video2: informacion del segundo video que incluye su valor 'views'
     """
-    return (float(video1['views']) > float(video2['views']))
+    return (float(video1) > float(video2['key']))
 
 def cmpVideosByLikes(video1, video2):
     """
@@ -348,6 +333,15 @@ def cmpVideosByLikes(video1, video2):
     else:
         return -1
 
+def comparepais(video1, video2):
+
+    """
+    Devuelve verdadero (True) si los 'id' de video1 son menores que los del video2
+    Args:
+    video1: informacion del primer video que incluye su valor 'video_id'
+    video2: informacion del segundo video que incluye su valor 'video_id'
+    """
+    return video1 < video2["key"]
 
 
 
@@ -398,10 +392,7 @@ def sortVideosByLikes (lista_filtros):
 
 
 
-
-
-
-
+#1
 
 def get_id_categoria(catalog, categoria):
     """
@@ -422,26 +413,78 @@ def getVideosbytag(catalog, categoria):
     Retornar la lista de videos asociados a una categoria
     """
     ids = get_id_categoria(catalog, categoria)
-    tag = mp.get(catalog["videos"], ids)
+    tag = mp.get(catalog["videos"], "category_id")
     videos = None
     if tag:
         videos = me.getValue(tag)['videos']
     return videos
 
 
-def filtrar_pais_categoria (id_categoria, catalog):
+def filtrar_pais_categoria (id_categoria, catalog, pais):
     """
     Crea una lista nueva para ordenar los datos segun su id.
     Y recorre la lista dada, para guardar en la nueva lista 
     solo los videos que correspondan con el id y el pais
     """
-    nueva_lista = catalog['videos'] = mp.newMap(10000,
-                                   maptype='PROBING',
-                                   loadfactor=0.80,
-                                   comparefunction=comparevideo_id1)
+    #nueva_lista = catalog['videos'] = mp.newMap(20,
+    #                               maptype='CHAINING',
+    #                               loadfactor=2.0,
+    #                               comparefunction=cmpVideosByViews)
+    nueva_lista = catalog['videos'] = lt.newList("ARRAY_LIST", cmpfunction = cmpVideosByViews)
 
-    for x in lt.iterator(catalog['videos']):
-        if int(x['category_id']) == id_categoria:
-            mp.addLast(nueva_lista, x)
-
+    mapa = mp.get(catalog['country'], pais)
+    for x in mapa:
+        if x[0][0] != None:
+            mapa = me.getValue(mapa)
+            lt.addLast(nueva_lista, mapa)
+            print(nueva_lista)
+  
     return nueva_lista
+
+
+
+#2
+def filtrar_pais (catalog, pais):
+    """
+    Crea una lista nueva para ordenar los datos segun su id.
+    Y recorre la lista dada, para guardar en la nueva lista 
+    solo los videos que correspondan con el respectivo pais
+    """
+    lista_pais = mp.newMap(comparefunction=comparevideo_id1)
+
+    mapa = mp.get(catalog['country'], pais)
+    mapa = me.getValue(mapa)
+
+    for x in range(1, lt.size(mapa)):
+        cada_mapa = lt.getElement(mapa, x)
+        contiene = mp.contains(lista_pais, cada_mapa["video_id"])
+
+        if not contiene:
+            cada_video = {}
+            cada_video["title"] = cada_mapa["title"]
+            cada_video["channel_title"] = cada_mapa["channel_title"]
+            cada_video["country"] = cada_mapa["country"]
+            cada_video["days"] = 1
+
+            mp.put(lista_pais, cada_mapa["video_id"], cada_video)
+        else:
+             llave = mp.get(lista_pais, cada_mapa["video_id"])
+             valor = me.getValue(llave)
+             valor["days"] += 1
+
+    return lista_pais
+
+def mejor_pais (catalog, lista_filtrada):
+    mejor_total = {}
+    mejor_parcial = 0
+
+    valores = mp.valueSet(lista_filtrada)
+
+    for x in range(0, lt.size(valores)):
+        mapa = lt.getElement(valores, x)
+
+        if mapa["days"] > mejor_parcial:
+            mejor_parcial = mapa["days"]
+            mejor_total = mapa
+    
+    return mejor_total

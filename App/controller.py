@@ -25,6 +25,7 @@ import tracemalloc
 import config as cf
 import model
 import csv
+from datetime import datetime
 
 
 """
@@ -99,37 +100,45 @@ def loadData(catalog):
     return delta_time, delta_memory
 
 
+
 def loadVideos(catalog):
     """
-    Carga los libros del archivo.  Por cada video se toman los datos necesarios:
+    Carga los videos del archivo.  Por cada video se toman los datos necesarios:
     video id, trending date, category id, views, nombre del canal, país, nombre del 
     video, likes, dislikes, fecha de publicación, likes y tags.
     """
-
     videosfile = cf.data_dir + 'videos-large.csv'
-    
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
+  
     for video in input_file:
-        cada_video = {'video_id': video['video_id'],
-                  #'trending_date': datetime.strptime(video['trending_date'], '%y.%d.%m').date(),
-                  'category_id': int(video['category_id']),
-                  'views': int(video['views']),
-                  'channel_title': video['channel_title'],
-                  'country': video['country'],
-                  'title': video['title'],
-                  'likes': video['likes'],
-                  'dislikes': video['dislikes'],
-                  'publish_time': video['publish_time'],
-                  'tags': video['tags']}
-                  
+        cada_video = {}
+        datos_str = ["title",
+                     "video_id",
+                     "category_id",
+                     "channel_title",
+                     "country",
+                     "publish_time"]
+        datos_numeros = ["likes",
+                         "dislikes",
+                         "views" ]
+
+        for dato in datos_str:
+            cada_video[dato] = video[dato]
+
+        for dato_num in datos_numeros:
+            cada_video[dato_num] = video[dato_num]
+        cada_video["trending_date"] = datetime.strptime(video['trending_date'], '%y.%d.%m').date()
+        
         model.addVideo(catalog, cada_video)
+
+        model.addCountry(catalog, cada_video)
+
 
 
 def loadCategories (catalog):
     """
     Carga las categorías del archivo. Por cada categoría su guarda su id y su nombre.
     """
-
     categoriesfile = cf.data_dir + 'category-id.csv'
 
     input_file = csv.DictReader(open(categoriesfile, encoding='utf-8'), delimiter="\t")
@@ -137,15 +146,6 @@ def loadCategories (catalog):
         categories = {'id': int(category['id']),
                       'name': category['name']}
         model.addCategory(catalog, category)
-
-
-
-# Funciones de ordenamiento
-
-# Funciones de consulta sobre el catálogo
-
-
-
 
 
 
@@ -165,7 +165,7 @@ def sortVideosByViews(lista_filtros, cantidad):
     """
     Ordena los videos por views.
     """
-    return model.sortVideos(lista_filtros, cantidad)
+    return model.sortVideosByViews(lista_filtros, cantidad)
 
 #2
 def sortVideosByID(filtro_pais):
@@ -188,39 +188,6 @@ def sortVideosByLikes (lista_filtros):
     """
     return model.sortVideosByLikes(lista_filtros)
 
-# Ejemplo tiempo y sort
-def sortBooksByYear(catalog, year, fraction, rank):
-    """
-    Retorna los libros que fueron publicados
-    en un año ordenados por rating
-    """
-    # TODO: modificaciones para medir el tiempo y memoria
-    # respuesta por defecto
-    books = None
-    delta_time = -1.0
-    delta_memory = -1.0
-
-    # inicializa el processo para medir memoria
-    tracemalloc.start()
-
-    # toma de tiempo y memoria al inicio del proceso
-    start_time = getTime()
-    start_memory = getMemory()
-
-    books = model.sortBooksByYear(catalog, year, fraction, rank)
-
-    # toma de tiempo y memoria al final del proceso
-    stop_memory = getMemory()
-    stop_time = getTime()
-
-    # finaliza el procesos para medir memoria
-    tracemalloc.stop()
-
-    # calculando la diferencia de tiempo y memoria
-    delta_time = stop_time - start_time
-    delta_memory = deltaMemory(start_memory, stop_memory)
-
-    return books, delta_time, delta_memory
 
 
 
@@ -288,14 +255,22 @@ def acortar_lista (sorted_list, cantidad):
 #Funciones:
 
 #1
-def requerimiento_1(catalog, categoria, cantidad):
+def requerimiento_1(catalog, categoria, cantidad, pais):
 
     id_categoria = model.get_id_categoria(catalog, categoria)
     #buscartag = model.getVideosbytag(catalog, id_categoria)
-    lista_filtros = model.filtrar_pais_categoria(id_categoria, catalog)
+    lista_filtros = model.filtrar_pais_categoria(id_categoria, catalog, pais)
     #sorted_list = sortVideosByLikes(lista_filtros)
 
     return lista_filtros
+
+#1
+def requerimiento_2(catalog, pais):
+
+    filtro_pais = model.filtrar_pais(catalog, pais)
+    mejor_pais = model.mejor_pais(catalog, filtro_pais)
+
+    return filtro_pais
 
 
 
