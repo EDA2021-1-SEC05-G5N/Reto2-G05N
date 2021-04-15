@@ -97,6 +97,8 @@ def printVideosMasViews(datos, cantidad):
         if contador >= cantidad:
             break
 
+#PROXIMAMENTE
+
 def printTendenciaPais(datos):
     print("\nNombre del video: ", datos["title"])
     print("Nombre del canal: ", datos["channel_title"])
@@ -155,7 +157,7 @@ while True:
 
         resultado = controller.requerimiento_1(catalog, categoria, cantidad, pais)
         printVideosMasViews(resultado, cantidad)
-        #print(resultado)
+
     
     elif int(inputs[0]) == 2:
         pais = input('Ingrese el pais: ')

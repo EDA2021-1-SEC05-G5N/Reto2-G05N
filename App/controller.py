@@ -169,85 +169,6 @@ def sortVideosByViews(lista_filtros, cantidad):
     """
     return model.sortVideosByViews(lista_filtros, cantidad)
 
-#2
-def sortVideosByID(filtro_pais):
-    """
-    Ordena los videos por id.
-    """
-    return model.sortVideosByID(filtro_pais)
-
-#3
-def sortVideosByID_date(filtro_categoria):
-    """
-    Ordena los videos por dos criterios: en primer lugar por su id y segundo por su trending_date. 
-    """
-    return model.sortVideosByID_date(filtro_categoria)
-
-#4
-def sortVideosByLikes (lista_filtros):
-    """
-    Ordena los videos por likes.
-    """
-    return model.sortVideosByLikes(lista_filtros)
-
-
-
-
-
-# Funciones de consulta sobre el catálogo
-
-
-#1
-#def filtrar_pais_categoria (id_categoria, catalog):
-#    """
-#    Retorna una lista que cumple con los requerimientos de país y categoría.
-#    """
-#    return model.filtrar_pais_categoria(id_categoria, catalog)
-
-#2
-#def filtrar_pais (pais, catalog):
-#    """
-#    Retorna una lista que cumple con el requerimiento de país.
-#    """
-#    return model.filtrar_pais(pais, catalog)
-
-#2
-def getTendencia2 (sorted_list):
-    """
-    Retorna el video con más días en tendencia.
-    """
-    return model.getTendencia2(sorted_list)
-
-#3
-#def filtrar_categoria (id_categoria, catalog):
-#    """
-#    Retorna una lista que cumple con el requerimiento de categoría.
-#    """
-#    return model.filtrar_categoria(id_categoria, catalog)
-
-#3
-def getTendencia3 (sorted_list):
-    """
-    Retorna el video con más días en tendencia. En este caso, tiene en cuenta que 
-    no se cuente doble como tendencia el mismo día en países distintos. 
-    """
-    return model.getTendencia3(sorted_list)
-
-#4
-def filtrar_pais_tag (tag, pais, catalog):
-    """
-    Retorna una lista que cumple con los requerimientos de país y tag. 
-    """
-    return model.filtrar_pais_tag(tag, pais, catalog)
-    
-#4
-def acortar_lista (sorted_list, cantidad):
-    """
-    Retorna una lista que cumple con el requerimiento de la cantidad de videos. 
-    """
-    return model.acortar_lista(sorted_list, cantidad)
-
-
 
 
 
@@ -257,7 +178,10 @@ def acortar_lista (sorted_list, cantidad):
 #Funciones:
 
 #1
-def requerimiento_1(catalog, categoria, cantidad, pais):
+def requerimiento_1(catalog, categoria, cantidad, pais):    
+    """
+    Se llaman las funciones necesarias para el requerimiento
+    """
 
     id_categoria = model.get_id_categoria(catalog, categoria)
     lista_filtros = model.filtrar_pais_categoria(catalog, pais, id_categoria)
@@ -267,7 +191,9 @@ def requerimiento_1(catalog, categoria, cantidad, pais):
 
 #2
 def requerimiento_2(catalog, pais):
-
+    """
+    Se llaman las funciones necesarias para el requerimiento
+    """
     filtro_pais = model.filtrar_pais(catalog, pais)
     mejor_pais = model.mejor_pais(catalog, filtro_pais)
 
@@ -275,7 +201,9 @@ def requerimiento_2(catalog, pais):
 
 #3
 def requerimiento_3(catalog, categoria):
-
+    """
+    Se llaman las funciones necesarias para el requerimiento
+    """
     id_categoria = model.get_id_categoria(catalog, categoria)
     filtro_category = model.filtrar_categoria(catalog, id_categoria)
     mejor_category = model.mejor_categoria(catalog, filtro_category)
