@@ -114,12 +114,12 @@ def loadVideos(catalog):
         cada_video = {}
         datos_str = ["title",
                      "video_id",
-                     "category_id",
                      "channel_title",
                      "country",
                      "publish_time"]
         datos_numeros = ["likes",
                          "dislikes",
+                         "category_id",
                          "views" ]
 
         for dato in datos_str:
@@ -132,6 +132,8 @@ def loadVideos(catalog):
         model.addVideo(catalog, cada_video)
 
         model.addCountry(catalog, cada_video)
+
+        model.addCategory_id(catalog, cada_video)
 
 
 
@@ -196,18 +198,18 @@ def sortVideosByLikes (lista_filtros):
 
 
 #1
-def filtrar_pais_categoria (id_categoria, catalog):
-    """
-    Retorna una lista que cumple con los requerimientos de país y categoría.
-    """
-    return model.filtrar_pais_categoria(id_categoria, catalog)
+#def filtrar_pais_categoria (id_categoria, catalog):
+#    """
+#    Retorna una lista que cumple con los requerimientos de país y categoría.
+#    """
+#    return model.filtrar_pais_categoria(id_categoria, catalog)
 
 #2
-def filtrar_pais (pais, catalog):
-    """
-    Retorna una lista que cumple con el requerimiento de país.
-    """
-    return model.filtrar_pais(pais, catalog)
+#def filtrar_pais (pais, catalog):
+#    """
+#    Retorna una lista que cumple con el requerimiento de país.
+#    """
+#    return model.filtrar_pais(pais, catalog)
 
 #2
 def getTendencia2 (sorted_list):
@@ -217,11 +219,11 @@ def getTendencia2 (sorted_list):
     return model.getTendencia2(sorted_list)
 
 #3
-def filtrar_categoria (id_categoria, catalog):
-    """
-    Retorna una lista que cumple con el requerimiento de categoría.
-    """
-    return model.filtrar_categoria(id_categoria, catalog)
+#def filtrar_categoria (id_categoria, catalog):
+#    """
+#    Retorna una lista que cumple con el requerimiento de categoría.
+#    """
+#    return model.filtrar_categoria(id_categoria, catalog)
 
 #3
 def getTendencia3 (sorted_list):
@@ -258,21 +260,27 @@ def acortar_lista (sorted_list, cantidad):
 def requerimiento_1(catalog, categoria, cantidad, pais):
 
     id_categoria = model.get_id_categoria(catalog, categoria)
-    #buscartag = model.getVideosbytag(catalog, id_categoria)
-    lista_filtros = model.filtrar_pais_categoria(id_categoria, catalog, pais)
-    #sorted_list = sortVideosByLikes(lista_filtros)
+    lista_filtros = model.filtrar_pais_categoria(catalog, pais, id_categoria)
+    organizado = model.organizar_ma_me(lista_filtros, cantidad)
 
     return lista_filtros
 
-#1
+#2
 def requerimiento_2(catalog, pais):
 
     filtro_pais = model.filtrar_pais(catalog, pais)
     mejor_pais = model.mejor_pais(catalog, filtro_pais)
 
-    return filtro_pais
+    return mejor_pais
 
+#3
+def requerimiento_3(catalog, categoria):
 
+    id_categoria = model.get_id_categoria(catalog, categoria)
+    filtro_category = model.filtrar_categoria(catalog, id_categoria)
+    mejor_category = model.mejor_categoria(catalog, filtro_category)
+
+    return mejor_category
 
 
 

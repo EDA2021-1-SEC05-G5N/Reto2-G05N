@@ -57,7 +57,73 @@ def printMenu():
     print("3- Mejor video por categoria                 - Req 3")
     print("4- Videos con mas likes por categoria y pais - Req 4")
 
+
+
+
+# Funciones para imprimir los datos en la consola
+
+def printBestVideos(videos):
+    size = lt.size(videos)
+    if size:
+        print(' Estos son los mejores videos: ')
+        for video in lt.iterator(videos):
+            print('Titulo: ' + video['title'] + '  views: ' +
+                  video['views'] + ' Likes: ' + video['likes'])
+    else:
+        print('No se encontraron videos')
+
+def printInfoPrimerVideo(catalog):
+    print('\nInfo del primer video:\n',
+        "Título del video: ",(lt.firstElement(catalog['videos']))['title'], 
+        "\nTítulo del canal del video: ",(lt.firstElement(catalog['videos']))['channel_title'], 
+        "\nFecha de tendencia del video: ",str((lt.firstElement(catalog['videos']))['trending_date']),
+        "\nPaís del video: ",(lt.firstElement(catalog['videos']))['country'],
+        "\nViews del video: ",(lt.firstElement(catalog['videos']))['views'],
+        "\nLikes del video: ",(lt.firstElement(catalog['videos']))['likes'],
+        "\nDislikes del video: ",(lt.firstElement(catalog['videos']))['dislikes'])
+
+def printVideosMasViews(datos, cantidad):
+    lista = datos["elements"]
+    contador = 0
+    for v in lista:
+        print("\nFecha de tendencia: ",v['trending_date'])
+        print("Nombre del video: ", v['title'])
+        print("Nombre del canal: ", v['channel_title'])
+        print("Fecha de publicación: ", v['publish_time'])
+        print("Reproducciones: ", v['views'])
+        print("Likes: ", v['likes'])
+        print("Dislikes: ", v['dislikes'])
+        contador += 1
+        if contador >= cantidad:
+            break
+
+def printTendenciaPais(datos):
+    print("\nNombre del video: ", datos["title"])
+    print("Nombre del canal: ", datos["channel_title"])
+    print("Pais: ", datos["country"])
+    print("Número de días como tendencia: ", datos["days"])
+
+def printTendenciaCategoria(datos):
+    print("\nNombre del video: ", datos[0]['title'])
+    print("Nombre del canal: ", datos[0]['channel_title'])
+    print("Categoria: ", datos[0]['category_id'])
+    print("Número de días como tendencia: ", datos[1])
+
+def printVideosMasLikes(datos):
+    lista = datos["elements"]
+    for v in lista:
+        print("\nNombre del video: ", v['title'])
+        print("Nombre del canal: ", v['channel_title'])
+        print("Fecha de publicación : ", v['publish_time'])
+        print("Reproducciones: ", v['views'])
+        print("Likes: ", v['likes'])
+        print("Dislikes: ", v['dislikes'])
+        print("Tags: ", v['tags'])
+
+
+
 catalog = None
+
 
 """
 Menu principal
@@ -88,12 +154,19 @@ while True:
         cantidad = int(input('Ingrese el número de videos: '))
 
         resultado = controller.requerimiento_1(catalog, categoria, cantidad, pais)
-        print(resultado)
+        printVideosMasViews(resultado, cantidad)
+        #print(resultado)
     
     elif int(inputs[0]) == 2:
         pais = input('Ingrese el pais: ')
 
         resultado = controller.requerimiento_2(catalog, pais)
+        printTendenciaPais(resultado)
+    
+    elif int(inputs[0]) == 3:
+        categoria = input('Ingrese la categoria: ')
+
+        resultado = controller.requerimiento_3(catalog, categoria)
         print(resultado)
 
     else:
@@ -105,63 +178,3 @@ sys.exit(0)
 
 
 
-
-# FUNCIONES RETO 2
-
-
-
-# Funciones para imprimir los datos en la consola
-
-def printBestVideos(videos):
-    size = lt.size(videos)
-    if size:
-        print(' Estos son los mejores videos: ')
-        for video in lt.iterator(videos):
-            print('Titulo: ' + video['title'] + '  views: ' +
-                  video['views'] + ' Likes: ' + video['likes'])
-    else:
-        print('No se encontraron videos')
-
-def printInfoPrimerVideo(catalog):
-    print('\nInfo del primer video:\n',
-        "Título del video: ",(lt.firstElement(catalog['videos']))['title'], 
-        "\nTítulo del canal del video: ",(lt.firstElement(catalog['videos']))['channel_title'], 
-        "\nFecha de tendencia del video: ",str((lt.firstElement(catalog['videos']))['trending_date']),
-        "\nPaís del video: ",(lt.firstElement(catalog['videos']))['country'],
-        "\nViews del video: ",(lt.firstElement(catalog['videos']))['views'],
-        "\nLikes del video: ",(lt.firstElement(catalog['videos']))['likes'],
-        "\nDislikes del video: ",(lt.firstElement(catalog['videos']))['dislikes'])
-
-def printVideosMasViews(datos):
-    lista = datos["elements"]
-    for v in lista:
-        print("\nFecha de tendencia: ",v['trending_date'])
-        print("Nombre del video: ", v['title'])
-        print("Nombre del canal: ", v['channel_title'])
-        print("Fecha de publicación: ", v['publish_time'])
-        print("Reproducciones: ", v['views'])
-        print("Likes: ", v['likes'])
-        print("Dislikes: ", v['dislikes'])
-
-def printTendenciaPais(datos):
-    print("\nNombre del video: ", datos[0]['title'])
-    print("Nombre del canal: ", datos[0]['channel_title'])
-    print("Pais: ", datos[0]['country'])
-    print("Número de días como tendencia: ", datos[1])
-
-def printTendenciaCategoria(datos):
-    print("\nNombre del video: ", datos[0]['title'])
-    print("Nombre del canal: ", datos[0]['channel_title'])
-    print("Categoria: ", datos[0]['category_id'])
-    print("Número de días como tendencia: ", datos[1])
-
-def printVideosMasLikes(datos):
-    lista = datos["elements"]
-    for v in lista:
-        print("\nNombre del video: ", v['title'])
-        print("Nombre del canal: ", v['channel_title'])
-        print("Fecha de publicación : ", v['publish_time'])
-        print("Reproducciones: ", v['views'])
-        print("Likes: ", v['likes'])
-        print("Dislikes: ", v['dislikes'])
-        print("Tags: ", v['tags'])
